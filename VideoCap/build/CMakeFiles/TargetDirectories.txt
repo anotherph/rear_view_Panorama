@@ -1,0 +1,3 @@
+/home/jekim/workspace/exam2/VideoCap/build/CMakeFiles/rebuild_cache.dir
+/home/jekim/workspace/exam2/VideoCap/build/CMakeFiles/edit_cache.dir
+/home/jekim/workspace/exam2/VideoCap/build/CMakeFiles/VideoCap.dir
