@@ -1,3 +1,0 @@
-/home/jekim/workspace/exam2/Combine_images/build/CMakeFiles/rebuild_cache.dir
-/home/jekim/workspace/exam2/Combine_images/build/CMakeFiles/edit_cache.dir
-/home/jekim/workspace/exam2/Combine_images/build/CMakeFiles/combine_images.dir
