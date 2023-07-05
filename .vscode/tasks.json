@@ -1,0 +1,32 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "cmake",
+			"label": "CMake: build",
+			"command": "build",
+			"targets": [
+				"[N/A - Select Kit]"
+			],
+			"group": "build",
+			"problemMatcher": [],
+			"detail": "CMake template build task"
+		},
+		{
+			"label": "C/C++: cpp build active file with OPENCV library",
+			"command": "gcc",
+			"args": [
+				"${file}",
+				"-o",
+				// "-g",
+				"${fileDirname}/${fileBasenameNoExtension}",
+				"-I",
+				"/usr/local/include/opencv4"
+				// g++ combine_images.cpp -I/usr/local/include/opencv4/ -L/usr/local/lib/libopencv_imgcodecs.so.407 -lopencv_core -lopencv_videoio -lopencv_highgui
+				// akkkkkkkkkkkk 
+			],
+			"group": "build",
+			"problemMatcher": []
+		},
+	]
+}
