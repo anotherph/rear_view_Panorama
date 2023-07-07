@@ -14,7 +14,7 @@ add_definitions(-DUSE_CUDA)
 # set for debug
 set(CMAKE_BUILD_TYPE Debug)
 # set(SOURCES ./VideoCapture/VideoCapture.cpp)
-set(SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Src/combine_images.cpp)
+set(SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Src/sift_ransac.cpp)
 add_executable(${PROJECT_NAME} ${SOURCES})
 # target_link_libraries( ${PROJECT_NAME} ${OpenCV_LIBS} )
 target_link_libraries( ${PROJECT_NAME} ${OpenCV_LIBS} "stdc++fs")
