@@ -24,11 +24,44 @@ void OnMouseAction(int event, int x, int y, int flags, void *para)
     }
 }
 
+void blending_img(int win_size, Mat& src1, Mat& src2, Mat& dst)
+{
+    int pos=src1.cols/2;
+    int offset=win_size/2;
+    int bar=pos-offset; 
+    int cnt = 0;
+    Mat temp; // for crop the black area..
+
+    for (int cnt_x=0;cnt_x<src1.rows;++cnt_x)
+    {   
+        cnt =0;
+        for (int cnt_y=0;cnt_y<bar-offset;++cnt_y)
+        {
+            src1.at<Vec3b>(cnt_x,cnt_y)=src1.at<Vec3b>(cnt_x,cnt_y);
+            src2.at<Vec3b>(cnt_x,cnt_y)=Vec3b(0,0,0);
+        }
+
+        for (int cnt_y=bar-offset;cnt_y<bar+offset;++cnt_y)
+        {
+            src1.at<Vec3b>(cnt_x,cnt_y)=src1.at<Vec3b>(cnt_x,cnt_y)*((2*offset-cnt)/double(2*offset));
+            src2.at<Vec3b>(cnt_x,cnt_y)=src2.at<Vec3b>(cnt_x,cnt_y)*((cnt)/double(2*offset));
+            cnt++;
+        }
+
+        for (int cnt_y=bar+offset;cnt_y<src1.cols;++cnt_y)
+        {
+            src1.at<Vec3b>(cnt_x,cnt_y)=Vec3b(0,0,0);
+            src2.at<Vec3b>(cnt_x,cnt_y)=src2.at<Vec3b>(cnt_x,cnt_y);
+        }
+    }
+    dst=src1+src2;
+}
+
 int main ()
 {
     // load images and make images being in gray scale
 
-    Mat img_src1, img_src2; 
+    Mat img_src1, img_src2, img_src1_, img_src2_; 
 
     img_src1 = imread(".././Img/IMG_8629.JPEG"); 
     img_src2 = imread(".././Img/IMG_8630.JPEG");  
@@ -36,11 +69,11 @@ int main ()
     // img_src1 = imread(".././Img/left.jpg"); 
     // img_src2 = imread(".././Img/right.jpg");  
 
-    Mat img_check; // check the features 
+    Mat img_check, img_check_; // check the features 
     hconcat(img_src1,img_src2,img_check);
 
-    cvtColor(img_src1,img_src1,COLOR_RGB2GRAY);
-    cvtColor(img_src2,img_src2,COLOR_RGB2GRAY);
+    cvtColor(img_src1,img_src1_,COLOR_RGB2GRAY);
+    cvtColor(img_src2,img_src2_,COLOR_RGB2GRAY);
 
     // SIFT 
 
@@ -49,8 +82,8 @@ int main ()
     vector<KeyPoint> kpts1, kpts2;
     Mat desc1, desc2; 
 
-    detector->detectAndCompute(img_src1, Mat(), kpts1, desc1);
-    detector->detectAndCompute(img_src2, Mat(), kpts2, desc2);
+    detector->detectAndCompute(img_src1_, Mat(), kpts1, desc1);
+    detector->detectAndCompute(img_src2_, Mat(), kpts2, desc2);
 
     // matching detected features
     desc1.convertTo(desc1, CV_32F);
@@ -103,43 +136,49 @@ int main ()
 
     Mat H = findHomography(pts2, pts1, RANSAC); // calculate perspective transform matrix
     Mat img_dst1, img_dst2, img_dst;
+
+    // img_dst=Mat(img_src1.rows,img_src1.cols*2,CV_8UC3,Scalar(0,0,0));
     img_src1.copyTo(img_dst1);
-    warpPerspective(img_src2,img_dst2, H, Size(img_dst2.cols,img_dst2.rows)); // apply perspective transform to image plane
-    hconcat(img_dst1,img_dst2,img_dst); 
-    int size_x=img_dst.rows;
-    int size_y=img_dst.cols;
+    warpPerspective(img_src2,img_dst2, H, Size(img_src2.cols*2,img_src2.rows)); // apply perspective transform to image plane
+    hconcat(img_src1,img_dst2(Rect(0,0,img_src2.cols,img_src2.rows)),img_check_); 
+    hconcat(img_dst1,Mat(img_src1.rows,img_src1.cols,CV_8UC3,Scalar(0,0,0)),img_dst1);
 
     // check the Perspective transformed pts
     vector<Point2f> pts2_tr;
     perspectiveTransform(pts2,pts2_tr,H); // apply perspective transform to points
         
-    // Stitching 
-
-    Mat temp1, temp2, img_f;
-    temp1 = img_dst1(Rect(0,0,img_dst1.cols-pts1[10].y,img_dst1.rows));
-    temp2 = img_dst2(Rect(pts2_tr[10].y,0,img_dst2.cols-pts2_tr[10].y,img_dst2.rows));
-    hconcat(temp1,temp2,img_f);
-    imwrite(".././Img/sift_ransac.jpg", img_f);
-    // edit the index of feature points
+    // Stitching (masking & blending)
+    int sizeWin=800;
+    img_dst = Mat(img_dst1.rows,img_dst1.cols*2,img_dst1.type());
+    blending_img(sizeWin,img_dst1,img_dst2,img_dst);
+    imwrite(".././Img/img_left.jpg", img_dst1);
+    imwrite(".././Img/img_right.jpg", img_dst2);
+    imwrite(".././Img/img_blending.jpg", img_dst);
 
     // show the feature points in two adject images
     
-
+    Point pts1_v, pts2_v;
     for (size_t i=0; i<num_k; i++) {
-        circle(img_check,Point(pts1[i].x,pts1[i].y),1, Scalar(255,0,255),10,-1,0);
-        circle(img_check,Point(img_src1.cols+pts2[i].x,pts2[i].y),1, Scalar(0,255,255),10,-1,0);
-        line(img_check,Point(pts1[i].x,pts1[i].y),Point(img_src1.cols+pts2[i].x,pts2[i].y),Scalar::all(255), 1, 8, 0);
+        pts1_v.x = pts1[i].x; pts1_v.y = pts1[i].y;
+        pts2_v.x = img_src1.cols+pts2[i].x; pts2_v.y = pts2[i].y;
+        string s1 = to_string(i);
+        circle(img_check,pts1_v,1, Scalar(255,0,255),10,-1,0);putText(img_check,s1,pts1_v,1,3,Scalar::all(0),2);
+        circle(img_check,pts2_v,1, Scalar(0,255,255),10,-1,0);putText(img_check,s1,pts2_v,1,3,Scalar::all(0),2);
+        line(img_check,pts1_v,pts2_v,Scalar::all(255), 1, 8, 0);
     }
 
     imwrite(".././Img/feature.jpg", img_check);
 
     for (size_t i=0; i<num_k; i++) {
-        circle(img_dst,Point(pts1[i].x,pts1[i].y),1, Scalar(255,0,255),10,-1,0);
-        circle(img_dst,Point(img_src1.cols+pts2_tr[i].x,pts2_tr[i].y),1, Scalar(0,255,255),10,-1,0);
-        line(img_dst,Point(pts1[i].x,pts1[i].y),Point(img_src1.cols+pts2_tr[i].x,pts2_tr[i].y),Scalar::all(255), 1, 8, 0);
+        pts1_v.x = pts1[i].x; pts1_v.y = pts1[i].y;
+        pts2_v.x = img_src1.cols+pts2_tr[i].x; pts2_v.y = pts2_tr[i].y;
+        string s1 = to_string(i);
+        circle(img_check_,pts1_v,1, Scalar(255,0,255),10,-1,0);putText(img_check_,s1,pts1_v,1,3,Scalar::all(0),2);
+        circle(img_check_,pts2_v,1, Scalar(0,255,255),10,-1,0);putText(img_check_,s1,pts2_v,1,3,Scalar::all(0),2);
+        line(img_check_,pts1_v,pts2_v,Scalar::all(255), 1, 8, 0);
     }
 
-    imwrite(".././Img/feature_in_perspective.jpg", img_dst);
+    imwrite(".././Img/feature_in_perspective.jpg", img_check_);
     return 0;
 
 }
