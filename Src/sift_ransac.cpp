@@ -63,11 +63,11 @@ int main ()
 
     Mat img_src1, img_src2, img_src1_, img_src2_; 
 
-    img_src1 = imread(".././Img/IMG_8629.JPEG"); 
-    img_src2 = imread(".././Img/IMG_8630.JPEG");  
+    // img_src1 = imread(".././Img/IMG_8629.JPEG"); 
+    // img_src2 = imread(".././Img/IMG_8630.JPEG");  
 
-    // img_src1 = imread(".././Img/left.jpg"); 
-    // img_src2 = imread(".././Img/right.jpg");  
+    img_src1 = imread(".././Img/img_up.jpg"); 
+    img_src2 = imread(".././Img/img_down.jpg");  
 
     Mat img_check, img_check_; // check the features 
     hconcat(img_src1,img_src2,img_check);
@@ -75,62 +75,62 @@ int main ()
     cvtColor(img_src1,img_src1_,COLOR_RGB2GRAY);
     cvtColor(img_src2,img_src2_,COLOR_RGB2GRAY);
 
-    // SIFT 
+    // // SIFT 
 
-    Ptr<Feature2D> detector = SIFT::create();
+    // Ptr<Feature2D> detector = SIFT::create();
 
-    vector<KeyPoint> kpts1, kpts2;
-    Mat desc1, desc2; 
+    // vector<KeyPoint> kpts1, kpts2;
+    // Mat desc1, desc2; 
 
-    detector->detectAndCompute(img_src1_, Mat(), kpts1, desc1);
-    detector->detectAndCompute(img_src2_, Mat(), kpts2, desc2);
+    // detector->detectAndCompute(img_src1_, Mat(), kpts1, desc1);
+    // detector->detectAndCompute(img_src2_, Mat(), kpts2, desc2);
 
-    // matching detected features
-    desc1.convertTo(desc1, CV_32F);
-    desc2.convertTo(desc2, CV_32F);
+    // // matching detected features
+    // desc1.convertTo(desc1, CV_32F);
+    // desc2.convertTo(desc2, CV_32F);
 
-    Ptr<DescriptorMatcher> matcher = FlannBasedMatcher::create();
-    vector<DMatch> matches;
-    matcher->match(desc1, desc2, matches);
+    // Ptr<DescriptorMatcher> matcher = FlannBasedMatcher::create();
+    // vector<DMatch> matches;
+    // matcher->match(desc1, desc2, matches);
 
-    int num_k=20; // number of kpts for matching
-    sort(matches.begin(), matches.end());
-    vector<DMatch> good_matches(matches.begin(), matches.begin() + num_k); // find best match from 1st place to num_k-th place in order 
+    // int num_k=20; // number of kpts for matching
+    // sort(matches.begin(), matches.end());
+    // vector<DMatch> good_matches(matches.begin(), matches.begin() + num_k); // find best match from 1st place to num_k-th place in order 
 
-    vector<Point2f> pts1, pts2;
-    for (size_t i = 0; i < good_matches.size(); i++) {
-        pts1.push_back(kpts1[good_matches[i].queryIdx].pt);
-        pts2.push_back(kpts2[good_matches[i].trainIdx].pt);
-    }
-
-    // // // use pts1 which are selected manually
     // vector<Point2f> pts1, pts2;
-  
-    // imshow("image", img_src1);
-    // cv::waitKey(1);
-    // while(1)
-    // {
-    //     int key = cv::waitKey(10);
-    //     setMouseCallback("image", OnMouseAction);
-    //     if (key == 'q')
-    //         break;
+    // for (size_t i = 0; i < good_matches.size(); i++) {
+    //     pts1.push_back(kpts1[good_matches[i].queryIdx].pt);
+    //     pts2.push_back(kpts2[good_matches[i].trainIdx].pt);
     // }
-    // pts1 = vecTemp;
-    // vecTemp.clear();
-    // cv::destroyWindow("image");
 
-    // imshow("image", img_src2);
-    // cv::waitKey(1);
-    // while(1)
-    // {
-    //     int key = cv::waitKey(10);
-    //     setMouseCallback("image", OnMouseAction);
-    //     if (key == 'q')
-    //         break;
-    // }
-    // pts2 = vecTemp;
-    // vecTemp.clear();
-    // cv::destroyWindow("image");
+    // use pts1 which are selected manually
+    vector<Point2f> pts1, pts2;
+    int num_k=16; // number of kpts for matching
+    imshow("image", img_src1);
+    cv::waitKey(1);
+    while(1)
+    {
+        int key = cv::waitKey(10);
+        setMouseCallback("image", OnMouseAction);
+        if (key == 'q')
+            break;
+    }
+    pts1 = vecTemp;
+    vecTemp.clear();
+    cv::destroyWindow("image");
+
+    imshow("image", img_src2);
+    cv::waitKey(1);
+    while(1)
+    {
+        int key = cv::waitKey(10);
+        setMouseCallback("image", OnMouseAction);
+        if (key == 'q')
+            break;
+    }
+    pts2 = vecTemp;
+    vecTemp.clear();
+    cv::destroyWindow("image");
 
     // Homograpy 
 
