@@ -1,4 +1,5 @@
 // SIFT & RANSAC example for image stitching
+// left & right -- with two images
 
 #include <experimental/filesystem>
 #include <iostream>
@@ -66,8 +67,8 @@ int main ()
     // img_src1 = imread(".././Img/IMG_8629.JPEG"); 
     // img_src2 = imread(".././Img/IMG_8630.JPEG");  
 
-    img_src1 = imread(".././Img/img_up.jpg"); 
-    img_src2 = imread(".././Img/img_down.jpg");  
+    img_src1 = imread(".././Img/center.jpg"); 
+    img_src2 = imread(".././Img/right.jpg");  
 
     Mat img_check, img_check_; // check the features 
     hconcat(img_src1,img_src2,img_check);
@@ -103,34 +104,34 @@ int main ()
     //     pts2.push_back(kpts2[good_matches[i].trainIdx].pt);
     // }
 
-    // use pts1 which are selected manually
-    vector<Point2f> pts1, pts2;
-    int num_k=16; // number of kpts for matching
-    imshow("image", img_src1);
-    cv::waitKey(1);
-    while(1)
-    {
-        int key = cv::waitKey(10);
-        setMouseCallback("image", OnMouseAction);
-        if (key == 'q')
-            break;
-    }
-    pts1 = vecTemp;
-    vecTemp.clear();
-    cv::destroyWindow("image");
+    // // use pts1 which are selected manually
+    // vector<Point2f> pts1, pts2;
+    // int num_k=16; // number of kpts for matching
+    // imshow("image", img_src1);
+    // cv::waitKey(1);
+    // while(1)
+    // {
+    //     int key = cv::waitKey(10);
+    //     setMouseCallback("image", OnMouseAction);
+    //     if (key == 'q')
+    //         break;
+    // }
+    // pts1 = vecTemp;
+    // vecTemp.clear();
+    // cv::destroyWindow("image");
 
-    imshow("image", img_src2);
-    cv::waitKey(1);
-    while(1)
-    {
-        int key = cv::waitKey(10);
-        setMouseCallback("image", OnMouseAction);
-        if (key == 'q')
-            break;
-    }
-    pts2 = vecTemp;
-    vecTemp.clear();
-    cv::destroyWindow("image");
+    // imshow("image", img_src2);
+    // cv::waitKey(1);
+    // while(1)
+    // {
+    //     int key = cv::waitKey(10);
+    //     setMouseCallback("image", OnMouseAction);
+    //     if (key == 'q')
+    //         break;
+    // }
+    // pts2 = vecTemp;
+    // vecTemp.clear();
+    // cv::destroyWindow("image");
 
     // Homograpy 
 
