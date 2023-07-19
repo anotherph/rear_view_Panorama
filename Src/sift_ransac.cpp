@@ -64,11 +64,11 @@ int main ()
 
     Mat img_src1, img_src2, img_src1_, img_src2_; 
 
-    // img_src1 = imread(".././Img/IMG_8629.JPEG"); 
-    // img_src2 = imread(".././Img/IMG_8630.JPEG");  
+    img_src1 = imread(".././Img/IMG_8629.JPEG"); 
+    img_src2 = imread(".././Img/IMG_8630.JPEG");  
 
-    img_src1 = imread(".././Img/center.jpg"); 
-    img_src2 = imread(".././Img/right.jpg");  
+    // img_src1 = imread(".././Img/panorama_d/img_original/center.jpg"); 
+    // img_src2 = imread(".././Img/panorama_d/img_original/left.jpg");  
 
     Mat img_check, img_check_; // check the features 
     hconcat(img_src1,img_src2,img_check);
@@ -104,34 +104,34 @@ int main ()
     //     pts2.push_back(kpts2[good_matches[i].trainIdx].pt);
     // }
 
-    // // use pts1 which are selected manually
-    // vector<Point2f> pts1, pts2;
-    // int num_k=16; // number of kpts for matching
-    // imshow("image", img_src1);
-    // cv::waitKey(1);
-    // while(1)
-    // {
-    //     int key = cv::waitKey(10);
-    //     setMouseCallback("image", OnMouseAction);
-    //     if (key == 'q')
-    //         break;
-    // }
-    // pts1 = vecTemp;
-    // vecTemp.clear();
-    // cv::destroyWindow("image");
+    // use pts1 which are selected manually
+    vector<Point2f> pts1, pts2;
+    int num_k=8; // number of kpts for matching
+    imshow("image", img_src1);
+    cv::waitKey(1);
+    while(1)
+    {
+        int key = cv::waitKey(10);
+        setMouseCallback("image", OnMouseAction);
+        if (key == 'q')
+            break;
+    }
+    pts1 = vecTemp;
+    vecTemp.clear();
+    cv::destroyWindow("image");
 
-    // imshow("image", img_src2);
-    // cv::waitKey(1);
-    // while(1)
-    // {
-    //     int key = cv::waitKey(10);
-    //     setMouseCallback("image", OnMouseAction);
-    //     if (key == 'q')
-    //         break;
-    // }
-    // pts2 = vecTemp;
-    // vecTemp.clear();
-    // cv::destroyWindow("image");
+    imshow("image", img_src2);
+    cv::waitKey(1);
+    while(1)
+    {
+        int key = cv::waitKey(10);
+        setMouseCallback("image", OnMouseAction);
+        if (key == 'q')
+            break;
+    }
+    pts2 = vecTemp;
+    vecTemp.clear();
+    cv::destroyWindow("image");
 
     // Homograpy 
 
@@ -152,9 +152,9 @@ int main ()
     int sizeWin=800;
     img_dst = Mat(img_dst1.rows,img_dst1.cols*2,img_dst1.type());
     blending_img(sizeWin,img_dst1,img_dst2,img_dst);
-    imwrite(".././Img/img_left.jpg", img_dst1);
-    imwrite(".././Img/img_right.jpg", img_dst2);
-    imwrite(".././Img/img_blending.jpg", img_dst);
+    imwrite(".././Img/temp4/img_left.jpg", img_dst1);
+    imwrite(".././Img/temp4/img_right.jpg", img_dst2);
+    imwrite(".././Img/temp4/img_blending.jpg", img_dst);
 
     // show the feature points in two adject images
     
@@ -168,7 +168,7 @@ int main ()
         line(img_check,pts1_v,pts2_v,Scalar::all(255), 1, 8, 0);
     }
 
-    imwrite(".././Img/feature.jpg", img_check);
+    imwrite(".././Img/temp4/feature.jpg", img_check);
 
     for (size_t i=0; i<num_k; i++) {
         pts1_v.x = pts1[i].x; pts1_v.y = pts1[i].y;
@@ -179,7 +179,7 @@ int main ()
         line(img_check_,pts1_v,pts2_v,Scalar::all(255), 1, 8, 0);
     }
 
-    imwrite(".././Img/feature_in_perspective.jpg", img_check_);
+    imwrite(".././Img/temp4/feature_in_perspective.jpg", img_check_);
     return 0;
 
 }
