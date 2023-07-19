@@ -10,7 +10,7 @@
 using namespace cv;
 using namespace std;
 
-Panorama::Panorama():sizeWin(400), ind_l(0), ind_r(0)
+Panorama::Panorama():sizeWin(800), ind_l(0), ind_r(0),i_width(1920), i_hight (1080)
 {
  // constructor 
 }
@@ -52,20 +52,28 @@ Mat Panorama::Trasf(Mat dst, Mat src, vector<Point2f> pts_d, vector<Point2f> pts
 {
     // 1- center(dst), 2-right(src) findHomography(2,1)
     // panorama->Trasf(img_srcL,img_srcC,m_pts_left,m_pts_center_l,left);
-
-    Mat H = findHomography(pts_d, pts_s, RANSAC); // calculate perspective transform matrix
     Mat dst_;
-    vector<Point2f> pts_; 
-    warpPerspective(dst,dst_, H, Size(dst.cols*2,dst.rows*1)); // apply perspective transform to image plane
-    perspectiveTransform(pts_d,pts_,H);
+    vector<Point2f> pts_;
+    Mat H; 
 
     if (mode==0) //left
-        findMax(pts_);
-        m_blend_cl=vector<Point2f>(1,Point2f(pts_s[ind_l].x,pts_s[ind_l].y));
-    if (mode==2) //right
-        findMin(pts_);
-        m_blend_cr=vector<Point2f>(1,Point2f(pts_s[ind_r].x,pts_s[ind_r].y));
+        hconcat(Mat(dst.rows,dst.cols,CV_8UC3,Scalar(0,0,0)),dst,dst);
+        pts_d[0].x+=dst.rows;pts_d[1].x+=dst.rows;pts_d[2].x+=dst.rows;pts_d[3].x+=dst.rows;
+        pts_d[4].x+=dst.rows;pts_d[5].x+=dst.rows;pts_d[6].x+=dst.rows;pts_d[7].x+=dst.rows;
+        pts_s[0].x+=dst.rows;pts_s[1].x+=dst.rows;pts_s[2].x+=dst.rows;pts_s[3].x+=dst.rows;
+        pts_s[4].x+=dst.rows;pts_s[5].x+=dst.rows;pts_s[6].x+=dst.rows;pts_s[7].x+=dst.rows;
 
+        H = findHomography(pts_d, pts_s, RANSAC); // calculate perspective transform matrix
+        warpPerspective(dst,dst_,H, Size(dst.cols*1,dst.rows*1)); // apply perspective transform to image plane
+        // perspectiveTransform(pts_d,pts_,H);
+        // findMax(pts_);
+        // m_blend_cl=vector<Point2f>(1,Point2f(pts_s[ind_l].x,pts_s[ind_l].y));
+    if (mode==2) //right
+        hconcat(dst,Mat(dst.rows,dst.cols,CV_8UC3,Scalar(0,0,0)),dst);
+        H = findHomography(pts_d, pts_s, RANSAC); // calculate perspective transform matrix
+        warpPerspective(dst,dst_,H, Size(dst.cols*1,dst.rows*1)); // apply perspective transform to image plane
+        // findMin(pts_);
+        // m_blend_cr=vector<Point2f>(1,Point2f(pts_s[ind_r].x,pts_s[ind_r].y));
     return dst_;
 
 }
@@ -73,13 +81,17 @@ Mat Panorama::Trasf(Mat dst, Mat src, vector<Point2f> pts_d, vector<Point2f> pts
 // void Panorama::Blend(Mat imgL, Mat imgC, Mat imgR)
 Mat Panorama::Blend(Mat imgL, Mat imgC, Mat imgR)
 {
-    hconcat(imgC,Mat(imgC.rows,imgC.cols,CV_8UC3,Scalar(0,0,0)),imgC);
+    hconcat(imgC,Mat(i_hight,i_width,CV_8UC3,Scalar(0,0,0)),imgC);
+    hconcat(Mat(i_hight,i_width,CV_8UC3,Scalar(0,0,0)),imgC,imgC);
+    hconcat(imgL,Mat(i_hight,i_width,CV_8UC3,Scalar(0,0,0)),imgL);
+    hconcat(Mat(i_hight,i_width,CV_8UC3,Scalar(0,0,0)),imgR,imgR);
 
     int offset=sizeWin/2;
-    int pos_l=m_blend_l[0].x;
+    // int pos_l=m_blend_l[0].x;
+    int pos_l=i_width+offset; // 3/4 points 
     int bar_l=pos_l-sizeWin;
     // int pos_r=m_blend_r[0].x;
-    int pos_r = 1500; // select the blending point
+    int pos_r = 2*i_width-offset; // 1/4 points
     int bar_r=pos_r-sizeWin; 
     int cnt = 0;
     Mat img_blend; // final panorama image 
@@ -87,25 +99,27 @@ Mat Panorama::Blend(Mat imgL, Mat imgC, Mat imgR)
     for (int cnt_x=0;cnt_x<imgL.rows;++cnt_x)
     {   
         cnt =0;
-        for (int cnt_y=0;cnt_y<bar_l-offset;++cnt_y)
+        for (int cnt_y=0;cnt_y<pos_l-offset;++cnt_y)
         {
             imgL.at<Vec3b>(cnt_x,cnt_y)=imgL.at<Vec3b>(cnt_x,cnt_y);
             imgC.at<Vec3b>(cnt_x,cnt_y)=Vec3b(0,0,0);
         }
 
-        for (int cnt_y=bar_l-offset;cnt_y<bar_l+offset;++cnt_y)
+        for (int cnt_y=pos_l-offset;cnt_y<pos_l+offset;++cnt_y)
         {
             imgL.at<Vec3b>(cnt_x,cnt_y)=imgL.at<Vec3b>(cnt_x,cnt_y)*((2*offset-cnt)/double(2*offset));
             imgC.at<Vec3b>(cnt_x,cnt_y)=imgC.at<Vec3b>(cnt_x,cnt_y)*((cnt)/double(2*offset));
             cnt++;
         }
 
-        for (int cnt_y=bar_l+offset;cnt_y<imgL.cols;++cnt_y)
+        for (int cnt_y=pos_l+offset;cnt_y<imgL.cols;++cnt_y)
         {
             imgL.at<Vec3b>(cnt_x,cnt_y)=Vec3b(0,0,0);
             imgC.at<Vec3b>(cnt_x,cnt_y)=imgC.at<Vec3b>(cnt_x,cnt_y);
         }
     }
+    imwrite(".././Img/panorama_d/pts/L.jpg", imgL);
+    imwrite(".././Img/panorama_d/pts/LC.jpg", imgC);
 
     for (int cnt_x=0;cnt_x<imgR.rows;++cnt_x)
     {   
@@ -129,6 +143,9 @@ Mat Panorama::Blend(Mat imgL, Mat imgC, Mat imgR)
             imgR.at<Vec3b>(cnt_x,cnt_y)=imgR.at<Vec3b>(cnt_x,cnt_y);
         }
     }
+
+    imwrite(".././Img/panorama_d/pts/R.jpg", imgR);
+    imwrite(".././Img/panorama_d/pts/RC.jpg", imgC);
 
     img_blend=imgL+imgC+imgR;
     return img_blend;
