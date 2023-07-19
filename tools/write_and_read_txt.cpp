@@ -23,14 +23,14 @@ void OnMouseAction(int event, int x, int y, int flags, void *para)
 int main ()
 {
     // parser
-    String name = "left";
+    String name = "center";
     int num_k=8;
 
     // default path; if you want to edit the absolute path of src, plz edit here and complie& build again. 
     String path = "/home/jekim/workspace/rear_view_Panorama/Img/panorama_d";
-    String path_file = "/pts/"+name+".txt";
+    String path_file = "/pts/"+name+"_r.txt";
     String path_img = "/img_original/"+name+".jpg";
-    String path_imgwpts = "/pts/"+name+"_pts.jpg";
+    String path_imgwpts = "/pts/"+name+"_r_pts.jpg";
 
     // load the image 
     Mat img_src = imread(path+path_img);

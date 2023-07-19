@@ -63,10 +63,10 @@ int main ()
 
 	while (1)
 	{
-		path_img_t=".././Img/total.jpg";
-		path_img_l=".././Img/left.jpg";
-		path_img_r=".././Img/right.jpg";
-		path_img_c=".././Img/center.jpg";
+		path_img_t=".././Img/panorama_d/img_original/total.jpg";
+		path_img_l=".././Img/panorama_d/img_original/left.jpg";
+		path_img_r=".././Img/panorama_d/img_original/right.jpg";
+		path_img_c=".././Img/panorama_d/img_original/center.jpg";
 		count++;
 		cap_center >> img_center;
 		cap_right >> img_right;
