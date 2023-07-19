@@ -16,6 +16,8 @@ private:
     vector<Point2f>                         m_blend_r;
     vector<Point2f>                         m_blend_cl;
     vector<Point2f>                         m_blend_cr;
+    int                                     i_width;
+    int                                     i_hight;              
     
 public:
     Panorama();
@@ -26,9 +28,5 @@ public:
     virtual Mat Blend(Mat imgL, Mat imgC, Mat imgR);
     // virtual void Blend(Mat imgL, Mat imgC, Mat imgR);
     virtual void findMax(vector<Point2f>& pts_);
-    virtual void findMin(vector<Point2f>& pts_);
-    // virtual void warpPers(Mat& dst1, Mat& dst2, Mat& H_mat);
-    // virtual Point2i calEq(Mat& H_mat,Point2f pts);
-    // virtual Point2i calEq1(Mat& H_mat,Point2f pts);
-    
+    virtual void findMin(vector<Point2f>& pts_);    
 };
