@@ -10,9 +10,9 @@
 using namespace cv;
 using namespace std;
 
-Panorama::Panorama():sizeWin(800), ind_l(0), ind_r(0),i_width(1920), i_hight (1080)
+Panorama::Panorama():sizeWin(200), ind_l(0), ind_r(0),num_k(15), i_width(1920), i_hight (1080)
 {
- // constructor 
+    // constructor 
 }
 
 Panorama::~Panorama()
@@ -25,7 +25,6 @@ vector<Point2f> Panorama::readTxtFile(string path_str)
     vector<Point2f> pts;
     Point pts_;
     string hzText;
-    int num_k = 8;
     string::size_type n; 
 
     std::ifstream readFile;            
@@ -47,38 +46,37 @@ vector<Point2f> Panorama::readTxtFile(string path_str)
     return pts; 
 }
 
-// void Panorama::Trasf(Mat& dst, Mat& src, vector<Point2f>& pts_d, vector<Point2f>& pts_s, int mode)
 Mat Panorama::Trasf(Mat dst, Mat src, vector<Point2f> pts_d, vector<Point2f> pts_s, int mode)
 {
-    // 1- center(dst), 2-right(src) findHomography(2,1)
-    // panorama->Trasf(img_srcL,img_srcC,m_pts_left,m_pts_center_l,left);
     Mat dst_;
     vector<Point2f> pts_;
     Mat H; 
 
     if (mode==0) //left
+    {
         hconcat(Mat(dst.rows,dst.cols,CV_8UC3,Scalar(0,0,0)),dst,dst);
-        pts_d[0].x+=dst.rows;pts_d[1].x+=dst.rows;pts_d[2].x+=dst.rows;pts_d[3].x+=dst.rows;
-        pts_d[4].x+=dst.rows;pts_d[5].x+=dst.rows;pts_d[6].x+=dst.rows;pts_d[7].x+=dst.rows;
-        pts_s[0].x+=dst.rows;pts_s[1].x+=dst.rows;pts_s[2].x+=dst.rows;pts_s[3].x+=dst.rows;
-        pts_s[4].x+=dst.rows;pts_s[5].x+=dst.rows;pts_s[6].x+=dst.rows;pts_s[7].x+=dst.rows;
+        ptsShift(pts_d,src.cols);ptsShift(pts_s,src.cols);
 
         H = findHomography(pts_d, pts_s, RANSAC); // calculate perspective transform matrix
         warpPerspective(dst,dst_,H, Size(dst.cols*1,dst.rows*1)); // apply perspective transform to image plane
-        // perspectiveTransform(pts_d,pts_,H);
-        // findMax(pts_);
-        // m_blend_cl=vector<Point2f>(1,Point2f(pts_s[ind_l].x,pts_s[ind_l].y));
+        perspectiveTransform(pts_d,pts_,H);
+        H_l=H;
+        checkMapping(dst_,src,pts_,pts_s,mode);
+    }
+
     if (mode==2) //right
+    {
         hconcat(dst,Mat(dst.rows,dst.cols,CV_8UC3,Scalar(0,0,0)),dst);
         H = findHomography(pts_d, pts_s, RANSAC); // calculate perspective transform matrix
         warpPerspective(dst,dst_,H, Size(dst.cols*1,dst.rows*1)); // apply perspective transform to image plane
-        // findMin(pts_);
-        // m_blend_cr=vector<Point2f>(1,Point2f(pts_s[ind_r].x,pts_s[ind_r].y));
+        perspectiveTransform(pts_d,pts_,H);
+        H_r=H;
+        checkMapping(dst_,src,pts_,pts_s,mode);
+    }
+        
     return dst_;
-
 }
 
-// void Panorama::Blend(Mat imgL, Mat imgC, Mat imgR)
 Mat Panorama::Blend(Mat imgL, Mat imgC, Mat imgR)
 {
     hconcat(imgC,Mat(i_hight,i_width,CV_8UC3,Scalar(0,0,0)),imgC);
@@ -87,12 +85,8 @@ Mat Panorama::Blend(Mat imgL, Mat imgC, Mat imgR)
     hconcat(Mat(i_hight,i_width,CV_8UC3,Scalar(0,0,0)),imgR,imgR);
 
     int offset=sizeWin/2;
-    // int pos_l=m_blend_l[0].x;
-    int pos_l=i_width+offset; // 3/4 points 
-    int bar_l=pos_l-sizeWin;
-    // int pos_r=m_blend_r[0].x;
-    int pos_r = 2*i_width-offset; // 1/4 points
-    int bar_r=pos_r-sizeWin; 
+    int pos_l=i_width+offset;
+    int pos_r = 2*i_width-offset; 
     int cnt = 0;
     Mat img_blend; // final panorama image 
 
@@ -118,8 +112,8 @@ Mat Panorama::Blend(Mat imgL, Mat imgC, Mat imgR)
             imgC.at<Vec3b>(cnt_x,cnt_y)=imgC.at<Vec3b>(cnt_x,cnt_y);
         }
     }
-    imwrite(".././Img/panorama_d/pts/L.jpg", imgL);
-    imwrite(".././Img/panorama_d/pts/LC.jpg", imgC);
+    // imwrite(".././Img/panorama_d/pts/L.jpg", imgL);
+    // imwrite(".././Img/panorama_d/pts/LC.jpg", imgC);
 
     for (int cnt_x=0;cnt_x<imgR.rows;++cnt_x)
     {   
@@ -132,6 +126,7 @@ Mat Panorama::Blend(Mat imgL, Mat imgC, Mat imgR)
 
         for (int cnt_y=pos_r-offset;cnt_y<pos_r+offset;++cnt_y)
         {
+            if (cnt_y==pos_r)
             imgC.at<Vec3b>(cnt_x,cnt_y)=imgC.at<Vec3b>(cnt_x,cnt_y)*((2*offset-cnt)/double(2*offset));
             imgR.at<Vec3b>(cnt_x,cnt_y)=imgR.at<Vec3b>(cnt_x,cnt_y)*((cnt)/double(2*offset));
             cnt++;
@@ -144,13 +139,56 @@ Mat Panorama::Blend(Mat imgL, Mat imgC, Mat imgR)
         }
     }
 
-    imwrite(".././Img/panorama_d/pts/R.jpg", imgR);
-    imwrite(".././Img/panorama_d/pts/RC.jpg", imgC);
+    // imwrite(".././Img/panorama_d/pts/R.jpg", imgR);
+    // imwrite(".././Img/panorama_d/pts/RC.jpg", imgC);
 
     img_blend=imgL+imgC+imgR;
     return img_blend;
 }
 
+void Panorama::checkMapping(Mat dst, Mat src, vector<Point2f> pts_d, vector<Point2f> pts_s, int mode)
+{
+    Point pts1_v, pts2_v;
+    int num_k=pts_d.size();
+    Mat img_check;
+    if (mode==0)
+    {
+        img_check=src;
+        hconcat(dst,src,img_check);
+        for (size_t i=0; i<num_k; i++) {
+            pts1_v.x = pts_d[i].x; pts1_v.y = pts_d[i].y;
+            pts2_v.x = pts_s[i].x+src.cols; pts2_v.y = pts_s[i].y;
+            string s1 = to_string(i);
+            circle(img_check,pts1_v,1, Scalar(255,0,255),10,-1,0);putText(img_check,s1,pts1_v,1,3,Scalar::all(0),2); // magenta
+            circle(img_check,pts2_v,1, Scalar(0,255,255),10,-1,0);putText(img_check,s1,pts2_v,1,3,Scalar::all(0),2); //yellow
+            line(img_check,pts1_v,pts2_v,Scalar::all(255), 1, 8, 0);
+        }
+        imwrite(".././Img/panorama_d/result/feature_l.jpg", img_check);
+    }
+        
+    if (mode==2)
+    {
+         hconcat(src,dst,img_check);
+        for (size_t i=0; i<num_k; i++) {
+            pts1_v.x = pts_d[i].x+src.cols; pts1_v.y = pts_d[i].y;
+            pts2_v.x = pts_s[i].x; pts2_v.y = pts_s[i].y;
+            string s1 = to_string(i);
+            circle(img_check,pts1_v,1, Scalar(255,0,255),10,-1,0);putText(img_check,s1,pts1_v,1,3,Scalar::all(0),2);
+            circle(img_check,pts2_v,1, Scalar(0,255,255),10,-1,0);putText(img_check,s1,pts2_v,1,3,Scalar::all(0),2);
+            line(img_check,pts1_v,pts2_v,Scalar::all(255), 1, 8, 0);
+        }
+        imwrite(".././Img/panorama_d/result/feature_r.jpg", img_check);
+    }
+       
+}
+
+void Panorama::ptsShift(vector<Point2f>& pts_, int val_shift)
+{
+    for (int cnt_=0;cnt_<pts_.size();++cnt_)
+    {
+        pts_[cnt_].x+=val_shift;
+    }
+}
 void Panorama::findMax(vector<Point2f>& pts_)
 {   
     ind_l = 0;

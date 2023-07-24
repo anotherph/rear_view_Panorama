@@ -34,7 +34,7 @@ int main()
     Mat img_dstR = panorama->Trasf(img_srcR,img_srcC,m_pts_right,m_pts_center_r,right);
     Mat img_pano = panorama->Blend(img_dstL,img_srcC,img_dstR);
 
-    imwrite(".././Img/panorama_d/pts/pano.jpg", img_pano);
+    imwrite(".././Img/panorama_d/result/pano.jpg", img_pano);
     
     return 0;
 
