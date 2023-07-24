@@ -24,7 +24,7 @@ int main ()
 {
     // parser
     String name = "center";
-    int num_k=8;
+    int num_k=15;
 
     // default path; if you want to edit the absolute path of src, plz edit here and complie& build again. 
     String path = "/home/jekim/workspace/rear_view_Panorama/Img/panorama_d";
