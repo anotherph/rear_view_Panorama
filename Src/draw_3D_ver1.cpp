@@ -189,12 +189,15 @@ void displayMe(void) // draw sphere
     int32 bytesPerPixel;
     byte *data;
     GLint EnvMode = GL_REPLACE; // GL_REPLACE & GL_MOCULATE only , GL_ADD is not avaliavble 
-    GLint TexFilter = GL_NEAREST;
+    GLint TexFilter = GL_NEAREST;  //
+    // GLint TexFilter = GL_LINEAR;  //
+    GLuint myT;
     
-    // LoadBmp("/home/jekim/workspace/rear_view_Panorama/Img/pano.bmp", &data, &width, &height, &bytesPerPixel);
+    LoadBmp("/home/jekim/workspace/rear_view_Panorama/Img/pano.bmp", &data, &width, &height, &bytesPerPixel);
     // LoadBmp("/home/jekim/workspace/opengl_prac/img.bmp", &data, &width, &height, &bytesPerPixel);
-    LoadBmp("/home/jekim/Downloads/original.bmp", &data, &width, &height, &bytesPerPixel);
+    // LoadBmp("/home/jekim/Downloads/original.bmp", &data, &width, &height, &bytesPerPixel);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
     glEnable(GL_DEPTH_TEST);
     
@@ -203,11 +206,18 @@ void displayMe(void) // draw sphere
     glRotatef(90, 1, 0, 0);
     glRotatef(-0, 0, 1, 0);
     glRotatef(-90, 0, 0, 1);
-    glTranslatef(-0.5, 0, 0);
+    // glTranslatef(-0.5, 0, 0);
     // std::cout<<"X:"<<cameraAngleX/10<<std::endl;
 
+    // glRotatef(100, 1, 0, 0);
+    // glRotatef(20, 0, 1, 0);
+    // glRotatef(-90, 0, 0, 1);
+    // glTranslatef(-0.5, 0, 0);
+
     // texture setting 
-    glEnable(GL_TEXTURE_2D);
+
+    glGenTextures(1, &myT);
+    glBindTexture(GL_TEXTURE_2D,myT);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height,0, GL_RGB,  GL_UNSIGNED_BYTE, data);
     free(data);
     //     // 텍스처 환경 설정
@@ -215,6 +225,8 @@ void displayMe(void) // draw sphere
     //     // 텍스처 필터 설정
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, TexFilter);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, TexFilter);
+    glEnable(GL_TEXTURE_2D);
+    glFrontFace(GL_CCW);
     glShadeModel(GL_SMOOTH);
     
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -256,25 +268,27 @@ void displayMe(void) // draw sphere
     // glPopMatrix();
     // glFlush();
 
-    float r = 1.5; 
+    float r = 1; 
     float pi = 3.141592;
-    float a_i=0.25;int num_i=5;
-    float a_j=0.25;int num_j=5;
+    float a_i=0.5;int num_i=10;
+    float a_j=0.2;int num_j=10;
     float di = 2*a_i/num_i;
     float dj = 2*a_j/num_j;
     float db = di * pi;
     float da = dj * pi;
-    float dii=1/num_i; 
-    float djj=1/num_j;
+    float dii=1/float(num_i); 
+    float djj=1/float(num_j);
 
-    for (float i = -a_i; i <= a_i; i += di) //horizonal
+    for (float i = -a_i; i < a_i; i += di) //horizonal
     {
-        for (float j = -a_j; j <= a_j; j += dj) //vertical
+        for (float j = -a_j; j <a_j*0.95; j += dj) //vertical
         {
             float b = i * pi;      //0     to  2pi
             float a = j * pi;
-            float ii = (i/a_i+1)/2;
-            float jj = (j/a_j+1)/2;
+            float ii = i/a_i*0.5+0.5; 
+            float jj = j/a_j*0.5+0.5;
+            std::cout<<"X:"<<ii<<std::endl;
+            std::cout<<"X:"<<jj<<std::endl;
 
             //normal
             glNormal3f(
@@ -284,7 +298,6 @@ void displayMe(void) // draw sphere
 
             glBegin(GL_QUADS);
             //P1
-                glBindVertexArray
                 glTexCoord2f(ii, jj);
                 glVertex3f(
                     r * cos(a) * cos(b),
@@ -318,6 +331,7 @@ void displayMe(void) // draw sphere
     }
     glPopMatrix();
     glFlush();
+    glDeleteTextures(1,&myT);
 }
 
 int main(int argc, char** argv)
@@ -331,7 +345,7 @@ int main(int argc, char** argv)
     glutCreateWindow("Hello world :D"); // (5)
     // glutReshapeFunc(reshapeCB);
     glutDisplayFunc(displayMe); // (6)
-    glutTimerFunc(33, timerCB, 33); // (7)
+    glutTimerFunc(33, timerCB, 33); // (7) , this line make the image flink... 
     glutMouseFunc(mouseCB); // (8)
     glutMotionFunc(mouseMotionCB); //(9)
     glutMainLoop(); // the last ... 
