@@ -11,6 +11,7 @@
 #include <iomanip>
 #include <cstring>
 
+
 typedef unsigned int int32;
 typedef short int16;
 typedef unsigned char byte;
@@ -54,7 +55,6 @@ void toPerspective()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
-
 
 void timerCB(int millisec)
 {
@@ -133,6 +133,7 @@ void LoadBmp(const char *fileName, byte **pRaster, int32 *width, int32 *height, 
     //Read width
     fseek(imageFile, WIDTH_OFFSET, SEEK_SET);
     fread(width, 4, 1, imageFile);
+    // *width = 4800; 
     //Read height
     fseek(imageFile, HEIGHT_OFFSET, SEEK_SET);
     fread(height, 4, 1, imageFile);
@@ -185,7 +186,7 @@ void displayMe(void) // draw sphere
 {
     // load the bmp images
     int32 width;
-    int32 height;
+    int32 height; 
     int32 bytesPerPixel;
     byte *data;
     GLint EnvMode = GL_REPLACE; // GL_REPLACE & GL_MOCULATE only , GL_ADD is not avaliavble 
@@ -203,8 +204,11 @@ void displayMe(void) // draw sphere
     
     glPushMatrix(); //(2)
 
-    glRotatef(90, 1, 0, 0);
-    glRotatef(-0, 0, 1, 0);
+    glRotatef(cameraAngleX, 1, 0, 0);
+    glRotatef(cameraAngleY, 0, 1, 0);
+
+    // glRotatef(90, 1, 0, 0);
+    // glRotatef(-0, 0, 1, 0);
     glRotatef(-90, 0, 0, 1);
     // glTranslatef(-0.5, 0, 0);
     // std::cout<<"X:"<<cameraAngleX/10<<std::endl;
@@ -231,6 +235,7 @@ void displayMe(void) // draw sphere
     
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+    // // ############### triangular corn ###############
     // // 아랫면 흰 바닥
     // glBegin(GL_QUADS);
     // // glColor3f(1,1,1);
@@ -268,33 +273,168 @@ void displayMe(void) // draw sphere
     // glPopMatrix();
     // glFlush();
 
-    float r = 1; 
-    float pi = 3.141592;
-    float a_i=0.5;int num_i=10;
-    float a_j=0.2;int num_j=10;
-    float di = 2*a_i/num_i;
-    float dj = 2*a_j/num_j;
-    float db = di * pi;
-    float da = dj * pi;
-    float dii=1/float(num_i); 
-    float djj=1/float(num_j);
+    // // ############### sphere ###############
+    // float r = 1; 
+    // float pi = 3.141592;
+    // float a_i=0.5;int num_i=10;
+    // float a_j=0.2;int num_j=10;
+    // float di = 2*a_i/num_i;
+    // float dj = 2*a_j/num_j;
+    // float db = di * pi;
+    // float da = dj * pi;
+    // float dii=1/float(num_i); 
+    // float djj=1/float(num_j);
 
-    for (float i = -a_i; i < a_i; i += di) //horizonal
+    // for (float i = -a_i; i < a_i; i += di) //horizonal
+    // {
+    //     for (float j = -a_j; j <a_j*0.95; j += dj) //vertical
+    //     {
+    //         float b = i * pi;      //0     to  2pi
+    //         float a = j * pi;
+    //         float ii = i/a_i*0.5+0.5; 
+    //         float jj = j/a_j*0.5+0.5;
+    //         std::cout<<"X:"<<ii<<std::endl;
+    //         std::cout<<"X:"<<jj<<std::endl;
+
+    //         //normal
+    //         glNormal3f(
+    //             cos(a + da / 2) * cos(b + db / 2),
+    //             cos(a + da / 2) * sin(b + db / 2),
+    //             sin(a + da / 2));
+
+    //         glBegin(GL_QUADS);
+    //         //P1
+    //             glTexCoord2f(ii, jj);
+    //             glVertex3f(
+    //                 r * cos(a) * cos(b),
+    //                 r * cos(a) * sin(b),
+    //                 r * sin(a));
+    //             // glColor3f(0,0,0);
+                
+    //         //P2
+    //             glTexCoord2f(ii+dii, jj);
+    //             glVertex3f(
+    //                 r * cos(a) * cos(b + db),
+    //                 r * cos(a) * sin(b + db),
+    //                 r * sin(a));
+    //             // glColor3f(1,0,0);
+    //         //P3
+    //             glTexCoord2f(ii+djj, jj+djj);
+    //             glVertex3f(
+    //                 r * cos(a + da) * cos(b + db),
+    //                 r * cos(a + da) * sin(b + db),
+    //                 r * sin(a + da));
+    //             // glColor3f(1,1,0);
+    //         //P4
+    //             glTexCoord2f(ii,jj+djj);
+    //             glVertex3f(
+    //                 r * cos(a + da) * cos(b),
+    //                 r * cos(a + da) * sin(b),
+    //                 r * sin(a + da));
+    //             // glColor3f(1,0,1);
+    //         glEnd();
+    //     }
+    // }
+    // glPopMatrix();
+    // glFlush();
+    // glDeleteTextures(1,&myT);
+
+    // ############### hemisphere+cylinder ###############
+    float r = 0.8; 
+    float rp1, rp2; 
+    float pi = 3.141592;
+    float a_i=0.5;int num_i=20;
+    // float a_j=0.5;int num_j=50;
+    float a_jc=0.25; // maximum angle to draw cylinder in terms of spherical coordinate is 0.25 
+    float a_js=0.2; int num_j=num_i; // angle for sphere, a_js is recommand to be mode(0.5/a_js)=0 
+    float di = 2*a_i/num_i;
+    float djc = (a_jc+a_js)/num_j;
+    float djs = (a_jc+a_js)/num_j;
+    float db = di * pi;
+    float dac = djc * pi;
+    float das = djs * pi;
+    float dii=1/float(num_i); 
+    float djjc=1/float(num_j);
+    float djjs=1/float(num_j);
+
+    for (float i = -a_i; i < a_i-di; i += di) //horizonal
     {
-        for (float j = -a_j; j <a_j*0.95; j += dj) //vertical
+        for (float j = -a_jc; j <0; j += djc) //vertical, cylinder
         {
             float b = i * pi;      //0     to  2pi
             float a = j * pi;
-            float ii = i/a_i*0.5+0.5; 
-            float jj = j/a_j*0.5+0.5;
-            std::cout<<"X:"<<ii<<std::endl;
-            std::cout<<"X:"<<jj<<std::endl;
+            // float ii = i/a_i*0.5+0.5; 
+            // float jj = j/(a_jc+a_js)+0.5;
+            float ii = i+a_i; ii = ii/(2*a_i);
+            float jj = j+a_jc; jj = jj/(a_jc+a_js); 
+            rp1=r / cos (a);
+            rp2=r / cos (a+dac); 
+            
+            // std::cout<<"X:"<<ii<<std::endl;
+            // std::cout<<"Y:"<<jj<<std::endl;
 
             //normal
             glNormal3f(
-                cos(a + da / 2) * cos(b + db / 2),
-                cos(a + da / 2) * sin(b + db / 2),
-                sin(a + da / 2));
+                cos(a + dac / 2) * cos(b + db / 2),
+                cos(a + dac / 2) * sin(b + db / 2),
+                sin(a + dac / 2));
+
+            glBegin(GL_QUADS);
+            //P1
+                glTexCoord2f(ii, jj);
+                glVertex3f(
+                    rp1 * cos(a) * cos(b),
+                    rp1 * cos(a) * sin(b),
+                    rp1 * sin(a));
+                // glColor3f(0,0,0);
+                // std::cout<<"p1:"<<ii<< " " <<jj<<std::endl;
+                // std::cout<< rp1 * cos(a) * cos(b) <<" "<< rp1 * cos(a) * sin(b) <<" "<<rp1 * sin(a)<<std::endl;
+                
+            //P2
+                glTexCoord2f(ii+dii, jj);
+                glVertex3f(
+                    rp1 * cos(a) * cos(b + db),
+                    rp1 * cos(a) * sin(b + db),
+                    rp1 * sin(a));
+                // glColor3f(1,0,0);
+                // std::cout<<"p2:"<<ii+dii<< " " <<jj<<std::endl;
+            //P3
+                glTexCoord2f(ii+dii, jj+djjc);
+                glVertex3f(
+                    rp2 * cos(a + dac) * cos(b + db),
+                    rp2 * cos(a + dac) * sin(b + db),
+                    rp2 * sin(a + dac));
+                // glColor3f(1,1,0);
+                // std::cout<<"p3:"<<ii+dii<< " " <<jj+djjc<<std::endl;
+            //P4
+                glTexCoord2f(ii,jj+djjc);
+                glVertex3f(
+                    rp2 * cos(a + dac) * cos(b),
+                    rp2 * cos(a + dac) * sin(b),
+                    rp2 * sin(a + dac));
+                // glColor3f(1,0,1);
+                // std::cout<<"p4:"<<ii<< " " <<jj+djjc<<std::endl;
+            glEnd();
+        }
+
+        for (float j = 0; j <a_js-djs; j += djs) //vertical, hemisphere
+        {
+            float b = i * pi;      //0     to  2pi
+            float a = j * pi;
+            // float ii = i/a_i*0.5+0.5; 
+            // // float jj = j/a_j*0.5+0.5;
+            // float jj = j/(a_jc+a_js)+0.5;
+            float ii = i+a_i; ii = ii/(2*a_i);
+            float jj = j+a_jc; jj = jj/(a_jc+a_js); 
+
+            // std::cout<<"X:"<<ii<<std::endl;
+            // std::cout<<"Y:"<<jj<<std::endl;
+
+            //normal
+            glNormal3f(
+                cos(a + das / 2) * cos(b + db / 2),
+                cos(a + das / 2) * sin(b + db / 2),
+                sin(a + das / 2));
 
             glBegin(GL_QUADS);
             //P1
@@ -313,18 +453,18 @@ void displayMe(void) // draw sphere
                     r * sin(a));
                 // glColor3f(1,0,0);
             //P3
-                glTexCoord2f(ii+djj, jj+djj);
+                glTexCoord2f(ii+dii, jj+djjs);
                 glVertex3f(
-                    r * cos(a + da) * cos(b + db),
-                    r * cos(a + da) * sin(b + db),
-                    r * sin(a + da));
+                    r * cos(a + das) * cos(b + db),
+                    r * cos(a + das) * sin(b + db),
+                    r * sin(a + das));
                 // glColor3f(1,1,0);
             //P4
-                glTexCoord2f(ii,jj+djj);
+                glTexCoord2f(ii,jj+djjs);
                 glVertex3f(
-                    r * cos(a + da) * cos(b),
-                    r * cos(a + da) * sin(b),
-                    r * sin(a + da));
+                    r * cos(a + das) * cos(b),
+                    r * cos(a + das) * sin(b),
+                    r * sin(a + das));
                 // glColor3f(1,0,1);
             glEnd();
         }
@@ -340,7 +480,7 @@ int main(int argc, char** argv)
     glutInit(&argc, argv); // (1)
     // glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL);   // display mode
     glutInitDisplayMode(GLUT_SINGLE); // (2)
-    glutInitWindowSize(1600, 1000); // (3)
+    glutInitWindowSize(1600, 700); // (3)
     glutInitWindowPosition(400, 400); //(4)
     glutCreateWindow("Hello world :D"); // (5)
     // glutReshapeFunc(reshapeCB);
