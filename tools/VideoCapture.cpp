@@ -79,10 +79,10 @@ int main ()
 
 		if (count==num_count)
 		{
-			imwrite(path_img_t, img_total); // save the calibration image
-			imwrite(path_img_l, img_left); // save the calibration image
-			imwrite(path_img_r, img_right); // save the calibration image
-			imwrite(path_img_c, img_center); // save the calibration image
+			// imwrite(path_img_t, img_total); // save the calibration image
+			// imwrite(path_img_l, img_left); // save the calibration image
+			// imwrite(path_img_r, img_right); // save the calibration image
+			// imwrite(path_img_c, img_center); // save the calibration image
 
 			cout<<" image capture complete! "<<endl;
 			cout<<" press ESC to turn off the image window "<<endl;

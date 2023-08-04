@@ -194,8 +194,8 @@ void displayMe(void) // draw sphere
     // GLint TexFilter = GL_LINEAR;  //
     GLuint myT;
     
-    LoadBmp("/home/jekim/workspace/rear_view_Panorama/Img/pano.bmp", &data, &width, &height, &bytesPerPixel);
-    // LoadBmp("/home/jekim/workspace/opengl_prac/img.bmp", &data, &width, &height, &bytesPerPixel);
+    // LoadBmp("/home/jekim/workspace/rear_view_Panorama/Img/pano.bmp", &data, &width, &height, &bytesPerPixel);
+    LoadBmp("/home/jekim/workspace/opengl_prac/img.bmp", &data, &width, &height, &bytesPerPixel);
     // LoadBmp("/home/jekim/Downloads/original.bmp", &data, &width, &height, &bytesPerPixel);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // glClear(GL_COLOR_BUFFER_BIT);

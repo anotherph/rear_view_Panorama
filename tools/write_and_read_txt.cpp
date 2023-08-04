@@ -28,9 +28,9 @@ int main ()
 
     // default path; if you want to edit the absolute path of src, plz edit here and complie& build again. 
     String path = "/home/jekim/workspace/rear_view_Panorama/Img/panorama_d";
-    String path_file = "/pts/"+name+"_r.txt";
+    String path_file = "/pts/"+name+"_l.txt";
     String path_img = "/img_original/"+name+".jpg";
-    String path_imgwpts = "/pts/"+name+"_r_pts.jpg";
+    String path_imgwpts = "/pts/"+name+"_l_pts.jpg";
 
     // load the image 
     Mat img_src = imread(path+path_img);
