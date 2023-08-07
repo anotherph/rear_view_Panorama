@@ -5,7 +5,6 @@
 #include <GL/glut.h>
 #include <math.h>
 #include <stdlib.h>
-// #include <iostream>
 #include <iomanip>
 #include <cstring>
 
@@ -20,14 +19,10 @@ int main(int argc, char** argv)
 {
     // ############ capture the video streaming ############
     int count = 0;
-    // int num_c=0;
     Mat vi_left, vi_right, vi_center, vi_pano2D;
 
     int width = 1920;
 	int height = 1080;
-    // int num_count = 1;
-
-    // vi_pano2D= cv::Mat::zeros(600, 1800, CV_64FC1);
 
     // center_cam
 	VideoCapture cap_center(4);
@@ -66,22 +61,24 @@ int main(int argc, char** argv)
 
     while (1)
 	{
-        count++;
+        clock_t st, fi; 
+        double duration;
+
         cap_center >> vi_center;
         cap_right >> vi_right;
         cap_left >> vi_left;
 
-        int a; 
-
-        // ############ make panorama image ############
-        vi_pano2D=panorama->makePano2D(vi_left,vi_center,vi_right);
+        st=clock();
+        vi_pano2D=panorama->Blend_tr(vi_left,vi_center,vi_right);
+        fi=clock();
         imshow("panorama image 2D", vi_pano2D);
+        duration = (double)(fi - st) / CLOCKS_PER_SEC;
+        cout << duration << "sec" << endl;
 
         if (waitKey(1) == 27)
             break;  // to turn off the window and break the while moon
 
 	}
-    
     
     return 0;
 
