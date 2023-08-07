@@ -39,11 +39,7 @@ public:
     ~Panorama();
     virtual vector<Point2f> readTxtFile(string path_str); 
     virtual void Trasf_rt(vector<Point2f> pts_d, vector<Point2f> pts_s, int mode);
-    // virtual Mat Trasf(Mat dst, Mat src, vector<Point2f> pts_d, vector<Point2f> pts_s, int mode); // dst must be center image
     virtual Mat Blend_tr(Mat& imgL, Mat& imgC, Mat& imgR);
-    // virtual Mat Blend(Mat imgL, Mat imgC, Mat imgR);
-    // virtual void checkMapping(Mat dst, Mat src, vector<Point2f> pts_d, vector<Point2f> pts_s, int mode);
     virtual void ptsShift(vector<Point2f>& pts_, int val_shift);
-    // virtual Mat makePano2D(Mat& img_srcL, Mat& img_srcC, Mat& img_srcR);
     virtual void setMask(void);
 };

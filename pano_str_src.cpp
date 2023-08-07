@@ -171,7 +171,7 @@ Mat Panorama::Blend_tr(Mat& imgL, Mat& imgC, Mat& imgR)
 
     img_p=dst_l+imgC+dst_r;
 
-    resize(img_p, img_p, cv::Size( 2500, 1080 )); // add 0.02s
+    resize(img_p, img_p, cv::Size( 2500, 1080 ));
     return img_p;
 }
 
