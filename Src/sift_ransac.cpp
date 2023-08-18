@@ -64,11 +64,11 @@ int main ()
 
     Mat img_src1, img_src2, img_src1_, img_src2_; 
 
-    img_src1 = imread(".././Img/IMG_8629.JPEG"); 
-    img_src2 = imread(".././Img/IMG_8630.JPEG");  
+    // img_src1 = imread(".././Img/temp/IMG_8629.JPEG"); 
+    // img_src2 = imread(".././Img/temp/IMG_8630.JPEG");  
 
-    // img_src1 = imread(".././Img/panorama_d/img_original/center.jpg"); 
-    // img_src2 = imread(".././Img/panorama_d/img_original/left.jpg");  
+    img_src1 = imread(".././Img/panorama_d4/img_original/center.jpg"); 
+    img_src2 = imread(".././Img/panorama_d4/img_original/right.jpg");  
 
     Mat img_check, img_check_; // check the features 
     hconcat(img_src1,img_src2,img_check);
@@ -76,7 +76,7 @@ int main ()
     cvtColor(img_src1,img_src1_,COLOR_RGB2GRAY);
     cvtColor(img_src2,img_src2_,COLOR_RGB2GRAY);
 
-    // // SIFT 
+    // SIFT 
 
     // Ptr<Feature2D> detector = SIFT::create();
 
@@ -152,7 +152,7 @@ int main ()
     int sizeWin=800;
     img_dst = Mat(img_dst1.rows,img_dst1.cols*2,img_dst1.type());
     blending_img(sizeWin,img_dst1,img_dst2,img_dst);
-    imwrite(".././Img/temp4/img_left.jpg", img_dst1);
+    imwrite(".././Img/temp4/img_center.jpg", img_dst1);
     imwrite(".././Img/temp4/img_right.jpg", img_dst2);
     imwrite(".././Img/temp4/img_blending.jpg", img_dst);
 
@@ -168,7 +168,7 @@ int main ()
         line(img_check,pts1_v,pts2_v,Scalar::all(255), 1, 8, 0);
     }
 
-    imwrite(".././Img/temp4/feature.jpg", img_check);
+    imwrite(".././Img/panorama_d4/result/feature.jpg", img_check);
 
     for (size_t i=0; i<num_k; i++) {
         pts1_v.x = pts1[i].x; pts1_v.y = pts1[i].y;
@@ -179,7 +179,7 @@ int main ()
         line(img_check_,pts1_v,pts2_v,Scalar::all(255), 1, 8, 0);
     }
 
-    imwrite(".././Img/temp4/feature_in_perspective.jpg", img_check_);
+    imwrite(".././Img/panorama_d4/result/feature_in_perspective.jpg", img_check_);
     return 0;
 
 }
