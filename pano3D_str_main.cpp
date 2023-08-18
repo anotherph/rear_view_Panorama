@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
     // Create GLUT Window
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-    glutInitWindowSize(frame_width*5, frame_height*3);
+    glutInitWindowSize(frame_width*3, frame_height*2);
 
     g_hWindow = glutCreateWindow("Video Texture");
 
@@ -125,13 +125,13 @@ GLvoid display(void)
     glRotatef(90, 0, 0, 1);
     glTranslatef(0, 0, 0.3); 
 
-    // //// 3D Model: hemisphere+cylinder (plz, recommand the new model which is more suitable to panorama scene)
+    // //// 3D Model: hemisphere+cylinder (plz, recommand the new model which is more suitable to panorama-scene)
     float r = 0.8; 
     float rp1, rp2; 
     float pi = 3.141592;
     float a_i=0.5;int num_i=40;
-    float a_jc=0.3; // maximum angle to draw cylinder in terms of spherical coordinate is 0.25 
-    float a_js=0.13; int num_j=num_i; // angle for sphere, a_js is recommand to be mode(0.5/a_js)=0 
+    float a_jc=0.26; // maximum angle to draw cylinder in terms of spherical coordinate is 0.25 
+    float a_js=0.1; int num_j=num_i; // angle for sphere, a_js is recommand to be mode(0.5/a_js)=0 
     float di = 2*a_i/num_i;
     float djc = (a_jc+a_js)/num_j;
     float djs = (a_jc+a_js)/num_j;
@@ -142,7 +142,7 @@ GLvoid display(void)
     float djjc=1/float(num_j);
     float djjs=1/float(num_j);
 
-    for (float i = -a_i; i < a_i-di; i += di) //horizonal
+    for (float i = -a_i; i < a_i; i += di) //horizonal
     {
         for (float j = -a_jc; j <0; j += djc) //vertical, cylinder
         {
